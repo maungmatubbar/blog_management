@@ -1,8 +1,9 @@
 import "dotenv/config";
-import express from "express";
+import express,{Request,Response,NextFunction} from "express";
 import userRoutes from './routers/userRoutes';
+import categoryRoutes from './routers/categoryRoutes';
 import connectDB from "./config/db";
-import { json } from 'body-parser'
+//import { json } from 'body-parser'
 
 //Database config
 connectDB();
@@ -11,13 +12,27 @@ connectDB();
 //rest object
 const app = express();
 // Middleware
-app.use(json());
+app.use(express.json());
 
-app.use('/user', userRoutes);
+//Use Routes
 app.get("/",(req: express.Request,res: express.Response)=>{
     res.send({
         message: "Welcome to ecommerce app"
     });
+});
+app.use('/api/category', categoryRoutes);
+app.use('/api/user', userRoutes);
+
+app.use((req:Request,res:Response,next:NextFunction)=>{
+    next(Error("End point not found"));
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((error:unknown,req:Request,res:Response,next:NextFunction)=>{
+    console.error(error);
+    let errorMessage = "An Unknown error occurred";
+    if(error instanceof Error) errorMessage = error.message;
+    res.status(500).json({error:errorMessage});
 });
 
 //PORT
