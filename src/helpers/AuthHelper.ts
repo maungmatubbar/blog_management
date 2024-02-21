@@ -11,6 +11,10 @@ class AuthHelper {
             console.log(error);
         }
     }
+    async comparePassword({password,hashedPassword}:{password:string,hashedPassword:string})
+    {
+        return await bcrypt.compare(password,hashedPassword);
+    }
 }
 
 export default new AuthHelper;

@@ -6,6 +6,7 @@ import connectDB from "./config/db";
 import morgan from "morgan";
 import createHttpError, {isHttpError} from "http-errors";
 import ResponseStatus from "./utils/responseStatus";
+import cors from 'cors';
 //import { json } from 'body-parser'
 
 //Database config
@@ -15,6 +16,7 @@ connectDB();
 //rest object
 const app = express();
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
