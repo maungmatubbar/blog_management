@@ -3,20 +3,23 @@ import User, { IUser } from "../models/User";
 import AuthHelper from '../helpers/AuthHelper';
 //import DataStatus from '../utils/dataStatus';
 import JWT from "jsonwebtoken";
+
+import ResponseStatus from "../utils/responseStatus";
 class UserController {
-  async getAllUsers(req: Request, res: Response): Promise<void> {
+ 
+  public async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
       const users = await User.find();
-      res.status(200).send(users);
+      res.status(ResponseStatus.OK).send(users);
     } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" });
+      res.status(ResponseStatus.SERVER_NOT_FOUND).json({ error: "Internal Server Error" });
     }
   }
 
-  async register(req: Request, res: Response): Promise<void> {
+  public async register(req: Request, res: Response): Promise<void> {
     try {
       const { name, email, password, phone, address, role }: IUser = req.body;
-      // res.send(req.body);
+     
       if (!name) {
         res.send({ error: "Name is required" });
       }
@@ -37,21 +40,20 @@ class UserController {
       const existingUser = await User.findOne({ email: email });
       // existing user
       if (existingUser) {
-        res.status(200).send({
+        res.status(ResponseStatus.OK).send({
           success: true,
           message: "Already Register please login",
         });
       }
-      //Register User
-      const hashedPassword = await AuthHelper.hasPassword(password)
-      //Save
+      //Register User Save
+      const hashedPassword = await AuthHelper.hasPassword(password);
       const newUser = await new User({
         name,
         email,
         phone,
         address,
         password: hashedPassword,
-        role: role??0,
+        role: role ?? 0,
       }).save();
       res.status(201).send({
         success: true,
@@ -66,7 +68,7 @@ class UserController {
       });
     }
   }
-  async userlogin(req: Request, res: Response) {
+  public async userlogin(req: Request, res: Response) {
     // res.send(req.body)
     try {
       const { email, password }: IUser = req.body;
@@ -118,11 +120,12 @@ class UserController {
       });
     }
   }
-  async testFunc(req: Request, res: Response) {
+  public async testFunc(req: Request, res: Response) {
     try{
       res.status(200).send({
         success: true,
         message: "Protected route Sucess",
+        data: req.body
        
       });
     }
