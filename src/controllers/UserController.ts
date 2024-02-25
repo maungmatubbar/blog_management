@@ -68,12 +68,13 @@ class UserController {
       });
     }
   }
-  public async userlogin(req: Request, res: Response) {
-    // res.send(req.body)
+  public async userlogin(req: Request, res: Response)
+   {
     try {
+      //return res.send(req.body);
       const { email, password }: IUser = req.body;
       if (!email || !password) {
-        res.status(404).send({
+        return res.status(404).send({
           success: false,
           message: "Email & Password are required.",
         });
@@ -81,7 +82,7 @@ class UserController {
       //check user
       const user = await User.findOne({ email: email });
         if (!user) {
-          res.status(404).send({
+          return res.status(404).send({
             success: false,
             message: "You are not registered.",
           });
@@ -92,7 +93,7 @@ class UserController {
           hashedPassword: hashPass
         });
         if (!matchPassword) {
-          res.status(200).send({
+          return res.status(200).send({
             success: false,
             message: "Your password not match our record",
           });
@@ -101,7 +102,7 @@ class UserController {
         const token = await JWT.sign({ _id: user?._id },jwtSecret, {
           expiresIn: "7d",
         });
-        res.status(200).send({
+        return res.status(200).send({
           success: true,
           message: "Login successfully!",
           user: {
@@ -113,7 +114,7 @@ class UserController {
           token,
         });
     } catch (error) {
-      res.status(500).send({
+      return res.status(500).send({
         success: false,
         message: "Error in Login",
         error,

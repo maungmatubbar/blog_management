@@ -3,15 +3,22 @@ import Category from "../models/Category";
 import ResponseStatus from "../utils/responseStatus";
 import mongoose from "mongoose";
 import createHttpError from "http-errors";
+
 class CategoryController {
     async getAllCategory (req:Request,res:Response,next:NextFunction):Promise<void>
     {
+        const page:number = parseInt(req.query.page as string) || 1;
+        const limit:number = parseInt(req.query.limit as string) || 3;
+        const skip:number = (page - 1) * limit;
         try {
-            const categories = await Category.find().exec();
-            res.status(ResponseStatus.OK).json({
+            const totalRecords:number = await Category.countDocuments();
+            const categories = await Category.find().skip(skip).limit(limit);
+            res.status(ResponseStatus.OK).send({
                 data: categories,
                 status: 'success',
-                error: false
+                error: false,
+                currentPage: page,
+                totalPages: Math.ceil(totalRecords / limit)
             });
           } catch (error) {
             next(error)
