@@ -5,40 +5,47 @@ import mongoose from "mongoose";
 import createHttpError from "http-errors";
 
 class CategoryController {
-    async getAllCategory (req:Request,res:Response,next:NextFunction):Promise<void>
+    public async getAllCategory (req:Request,res:Response,next:NextFunction):Promise<void>
     {
         const page:number = parseInt(req.query.page as string) || 1;
-        const limit:number = parseInt(req.query.limit as string) || 3;
+        const limit:number = parseInt(req.query.limit as string) || 5;
         const skip:number = (page - 1) * limit;
         try {
-            const totalRecords:number = await Category.countDocuments();
-            const categories = await Category.find().skip(skip).limit(limit);
+            const searchQuery = {
+                $or: [
+                    { name: { $regex: req?.query?.search??'' , $options: 'i' } },
+                ]
+            }
+            const totalRecords: number = await Category.countDocuments(searchQuery);
+            const categories = await Category.find(searchQuery).skip(skip).limit(limit).exec();
             res.status(ResponseStatus.OK).send({
                 data: categories,
                 status: 'success',
                 error: false,
                 currentPage: page,
-                totalPages: Math.ceil(totalRecords / limit)
+                totalPages: Math.ceil(totalRecords / limit),
+                total: totalRecords
             });
           } catch (error) {
             next(error)
           }
     }
-    async createCategory (req:Request,res:Response,next:NextFunction):Promise<void>
+    public async createCategory (req:Request,res:Response,next:NextFunction):Promise<void>
     {
         try{
             const category = await Category.create(req.body);
             res.status(ResponseStatus.CREATE).json({
                 data: category,
-                status: 'success',
-                error: false
+                success: true,
+                error: false,
+                message: 'Category created successfully.'
             });
         }
         catch(error){
             next(error);
         }
     }
-    async getCategory(req:Request,res:Response,next:NextFunction):Promise<void>
+    public async getCategory(req:Request,res:Response,next:NextFunction):Promise<void>
     {
         const categoryId = req?.params?.categoryId;
         try {
@@ -55,7 +62,7 @@ class CategoryController {
             next(error)
           }
     }
-    async updateCategory(req:Request,res:Response,next:NextFunction):Promise<void>
+    public async updateCategory(req:Request,res:Response,next:NextFunction):Promise<void>
     {
         const categoryId = req.params?.categoryId;
         const catName = req.body?.name;
@@ -84,7 +91,7 @@ class CategoryController {
             next(error);
         }
     }
-    async deleteCategory(req:Request,res:Response,next:NextFunction):Promise<void>
+    public async deleteCategory(req:Request,res:Response,next:NextFunction):Promise<void>
     {
         const categoryId = req.params?.categoryId;
         try{
