@@ -8,7 +8,7 @@ class CategoryController {
     public async getAllCategory (req:Request,res:Response,next:NextFunction):Promise<void>
     {
         const page:number = parseInt(req.query.page as string) || 1;
-        const limit:number = parseInt(req.query.limit as string) || 5;
+        const limit:number = parseInt(req.query.limit as string) || 10;
         const skip:number = (page - 1) * limit;
         try {
             const searchQuery = {
@@ -104,9 +104,9 @@ class CategoryController {
             }
            await category.deleteOne();
             res.status(ResponseStatus.OK).json({
-                data: '',
                 status: 'success',
-                error: false
+                error: false,
+                message: 'Category deleted successfully.'
             });
         }
         catch(error){
